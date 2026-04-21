@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services — PawHome</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="shopping">
+
+<nav class="navbar" id="navbar">
+  <a href="home.html" class="brand">🐾 PawHome</a>
+  <a href="home.html">Home</a>
+  <a href="catalogue.html">Catalogue</a>
+  <a href="services.html?page=shopping" class="active" id="nav-shopping">Shopping</a>
+  <a href="services.html?page=playtime" id="nav-playtime">Playtime</a>
+  <span class="welcome-msg hidden" id="welcome-msg"></span>
+  <a href="dashboard.html" class="hidden" id="nav-dashboard">Dashboard</a>
+  <a href="auth.html?page=login" id="nav-login">Login</a>
+  <a href="#" class="btn-logout hidden" id="btn-logout" onclick="logout()">Logout</a>
+</nav>
+
+<!-- SHOPPING PAGE (original shopping.html content, data-page="shopping") -->
+<div data-page="shopping" id="shopping-page">
+  <div class="section-wrap">
+    <h1 class="section-title">Pet Shopping</h1>
+    <p class="section-sub">Choose your pet type, then select a breed to book</p>
+
+    <!-- STEP 1: Pet Type -->
+    <div id="step1">
+      <h3>Step 1 — Choose Pet Type</h3>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;max-width:900px;margin-top:1rem">
+        <div class="pet-type-card" onclick="selectPetType('dog')"><div class="pt-emoji">🐶</div><div class="pt-label">Dog</div></div>
+        <div class="pet-type-card" onclick="selectPetType('cat')"><div class="pt-emoji">🐱</div><div class="pt-label">Cat</div></div>
+        <div class="pet-type-card" onclick="selectPetType('rabbit')"><div class="pt-emoji">🐰</div><div class="pt-label">Rabbit</div></div>
+        <div class="pet-type-card" onclick="selectPetType('bird')"><div class="pt-emoji">🦜</div><div class="pt-label">Bird</div></div>
+        <div class="pet-type-card" onclick="selectPetType('fish')"><div class="pt-emoji">🐟</div><div class="pt-label">Fish</div></div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Breed Selection -->
+    <div id="step2" class="hidden" style="margin-top:2rem">
+      <button class="btn btn-outline" onclick="goBack()">← Back</button>
+      <h3 id="step2-title" style="margin:1rem 0">Choose Breed</h3>
+      <div class="shop-grid" id="breedGrid"></div>
+    </div>
+
+    <!-- STEP 3: Booking Form -->
+    <div id="step3" class="hidden" style="margin-top:2rem;max-width:540px">
+      <button class="btn btn-outline" onclick="goBack2()">← Back to Breeds</button>
+      <div class="form-card" style="margin-top:1rem">
+        <h2 id="booking-title">Book Pet</h2>
+
+        <div id="form-alert-shopping"   class="alert alert-error  hidden"></div>
+        <div id="form-success-shopping" class="alert alert-success hidden"></div>
+
+        <form id="shopForm" novalidate>
+          <div class="form-group">
+            <label>Selected Pet</label>
+            <input type="text" id="selected-pet" readonly>
+          </div>
+          <div class="form-group">
+            <label>Preferred Visit Date</label>
+            <input type="date" id="shop-date">
+            <div class="field-error" id="err-shop-date">Please select a future date</div>
+          </div>
+          <div class="form-group">
+            <label>Additional Notes (optional)</label>
+            <textarea id="shop-notes" rows="3" placeholder="Any specific requirements..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full mt-2" id="shop-submit-btn">
+            🛒 Book Now
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYTIME PAGE (original playtime.html content, data-page="playtime") -->
+<div data-page="playtime" id="playtime-page" style="display:none;">
+  <div class="section-wrap">
+
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:1rem;margin-bottom:2rem;height:220px">
+      <img src="https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=800&auto=format&fit=crop" style="width:100%;height:100%;object-fit:cover;border-radius:8px" alt="Rabbit playtime">
+      <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&auto=format&fit=crop" style="width:100%;height:100%;object-fit:cover;border-radius:8px" alt="Dog playtime">
+      <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&auto=format&fit=crop" style="width:100%;height:100%;object-fit:cover;border-radius:8px" alt="Cat playtime">
+    </div>
+
+    <h1 class="section-title">Pet Playtime</h1>
+    <p class="section-sub">Book a slot and enjoy time with your favourite pets</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+
+      <!-- BOOKING FORM -->
+      <div>
+        <div class="form-card">
+          <h2>Book a Slot</h2>
+
+          <div id="form-alert-playtime"   class="alert alert-error  hidden"></div>
+          <div id="form-success-playtime" class="alert alert-success hidden"></div>
+
+          <form id="playForm" novalidate>
+
+            <div class="form-group">
+              <label>Date (must be tomorrow or later)</label>
+              <input type="date" id="play-date" onchange="loadSlots()">
+              <div class="field-error" id="err-play-date">Select a future date</div>
+            </div>
+
+            <div class="form-group">
+              <label>Pet Type</label>
+              <select id="play-pet">
+                <option value="">Choose pet type</option>
+                <option>Dogs</option>
+                <option>Cats</option>
+                <option>Rabbits</option>
+                <option>Birds</option>
+                <option>Mixed</option>
+              </select>
+              <div class="field-error" id="err-play-pet">Please choose a pet type</div>
+            </div>
+
+            <div class="form-group">
+              <label>Number of People (1–10)</label>
+              <input type="number" id="play-people" min="1" max="10" value="1">
+              <div class="field-error" id="err-play-people">Enter 1–10</div>
+            </div>
+
+            <div id="slots-section" class="hidden">
+              <label style="font-weight:600;margin-bottom:0.5rem;display:block">Available Slots</label>
+              <div id="slotsGrid"></div>
+              <div class="field-error" id="err-slot">Please select a time slot</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full mt-2" id="play-submit-btn">
+              Confirm Booking
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- INFO + MY APPOINTMENTS -->
+      <div>
+        <div style="background:var(--white);padding:1.5rem;margin-bottom:1.5rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+          <h3>Session Info</h3>
+          <ul style="list-style:none;padding:0;line-height:2">
+            <li>🕐 1 hour supervised session</li>
+            <li>🐾 Safe, friendly animals</li>
+            <li>👷 Staff support throughout</li>
+            <li>📸 Photos allowed</li>
+            <li>🍬 Free pet treats included</li>
+          </ul>
+        </div>
+
+        <div style="background:var(--white);padding:1.5rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+          <h3>My Bookings</h3>
+          <div id="myAppointments"><p style="color:gray">Loading...</p></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <p>PawsHome — All rights reserved</p>
+</footer>
+
+<script src="app.js"></script>
+<script>
+// ── SHARED INIT ──
+initNavbar();
+initRouting();  // Toggles ?page=shopping/playtime
+
+// ── SHOPPING JS (original) ──
+let currentType  = '';
+let currentBreed = '';
+let formSubmitted = false;
+
+const breeds = {
+  dog:    [{name:'Labrador',desc:'Friendly and loyal'},{name:'Golden Retriever',desc:'Playful and loving'},{name:'German Shepherd',desc:'Smart and protective'},{name:'Beagle',desc:'Curious and active'}],
+  cat:    [{name:'Persian',desc:'Calm indoor pet'},{name:'Siamese',desc:'Social and vocal'},{name:'Tabby',desc:'Easygoing and friendly'},{name:'British Shorthair',desc:'Quiet and relaxed'}],
+  rabbit: [{name:'White Rabbit',desc:'Gentle and calm'},{name:'Dutch Rabbit',desc:'Playful and active'},{name:'Lionhead Rabbit',desc:'Fluffy and cute'},{name:'Mini Lop',desc:'Friendly small breed'}],
+  bird:   [{name:'Budgerigar',desc:'Talkative and small'},{name:'Cockatiel',desc:'Friendly and musical'},{name:'Parrot',desc:'Intelligent and social'},{name:'Lovebird',desc:'Colorful and energetic'}],
+  fish:   [{name:'Goldfish',desc:'Easy to maintain'},{name:'Betta Fish',desc:'Bright and solo'},{name:'Guppy',desc:'Small and colorful'},{name:'Angelfish',desc:'Elegant aquarium fish'}]
+};
+
+function selectPetType(type) {
+  const user = getUser();
+  if (!user) {
+    showToast('Please login to book a pet', 3000, 'info');
+    setTimeout(() => window.location.href = 'auth.html?page=login', 1200);
+    return;
+  }
+  currentType = type;
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+
+  const icons = {dog:'🐶',cat:'🐱',rabbit:'🐰',bird:'🦜',fish:'🐟'};
+  document.getElementById('step2-title').textContent = `Step 2 — Choose ${type.charAt(0).toUpperCase()+type.slice(1)} Breed`;
+
+  const grid = document.getElementById('breedGrid');
+  grid.innerHTML = (breeds[type] || []).map(b => `
+    <div class="product-card">
+      <div class="product-card-body">
+        <h4>${icons[type] || '🐾'} ${b.name}</h4>
+        <p>${b.desc}</p>
+        <button class="btn btn-primary" onclick="selectBreed('${b.name}')">Select Breed</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectBreed(name) {
+  currentBreed = name;
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.remove('hidden');
+  document.getElementById('selected-pet').value = currentType.charAt(0).toUpperCase()+currentType.slice(1) + ' — ' + name;
+  document.getElementById('booking-title').textContent = `Book: ${name}`;
+  document.getElementById('form-success-shopping').classList.add('hidden');
+  document.getElementById('form-alert-shopping').classList.add('hidden');
+  formSubmitted = false;
+  const btn = document.getElementById('shop-submit-btn');
+  btn.disabled = false;
+  btn.textContent = '🛒 Book Now';
+}
+
+function goBack() {
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+}
+
+function goBack2() {
+  document.getElementById('step3').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+  document.getElementById('shopForm').reset();
+  hideAlert('form-alert-shopping');
+  hideAlert('form-success-shopping');
+  formSubmitted = false;
+}
+
+document.getElementById('shop-date').addEventListener('input', () => clearFieldErr('shop-date'));
+
+document.getElementById('shopForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (formSubmitted) {
+    showToast('Already submitted! Check your dashboard.', 3000, 'info');
+    return;
+  }
+
+  const user = getUser();
+  if (!user) {
+    showToast('Login required');
+    return;
+  }
+
+  // JS Validation
+  const date  = document.getElementById('shop-date').value;
+  const notes = document.getElementById('shop-notes').value.trim();
+  let valid = true;
+
+  if (!date || !validateFutureDate(date)) {
+    showFieldErr('shop-date', 'Please select a future date');
+    valid = false;
+  }
+  if (!valid) return;
+
+  const btn   = document.getElementById('shop-submit-btn');
+  const token = generateToken();
+  const details = `Pet: ${currentBreed} (${currentType}). Notes: ${notes || 'None'}`;
+
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  hideAlert('form-alert-shopping');
+
+  try {
+    const data = await apiFetch('submit_service', {
+      user_id:      user.id,
+      service_type: 'shopping',
+      details:      details,
+      req_date:     date,
+      req_time:     '',
+      sub_token:    token
+    });
+
+    if (data.success) {
+      formSubmitted = true;
+      showAlert('form-success-shopping', `✅ Booking confirmed for ${currentBreed}! Check your dashboard for status.`, 'success');
+      document.getElementById('shopForm').reset();
+      btn.textContent = '✅ Booked';
+    } else {
+      showAlert('form-alert-shopping', data.error || 'Booking failed. Please try again.');
+      btn.disabled = false;
+      btn.textContent = '🛒 Book Now';
+    }
+  } catch {
+    showAlert('form-alert-shopping', 'Network error. Please check your connection.');
+    btn.disabled = false;
+    btn.textContent = '🛒 Book Now';
+  }
+});
+
+// ── PLAYTIME JS (original) ──
+let selectedSlot  = null;
+let formSubmittedPlay = false;
+
+async function loadSlots() {
+  const date = document.getElementById('play-date').value;
+  if (!date) return;
+
+  if (!validateFutureDate(date)) {
+    showFieldErr('play-date', 'Date must be in the future');
+    document.getElementById('slots-section').classList.add('hidden');
+    return;
+  }
+  clearFieldErr('play-date');
+
+  document.getElementById('slots-section').classList.remove('hidden');
+  document.getElementById('slotsGrid').innerHTML = '<p style="color:gray">Loading slots...</p>';
+
+  try {
+    const res  = await fetch(`api.php?action=get_slots&date=${date}`);
+    const data = await res.json();
+    renderSlots(data.slots || []);
+  } catch {
+    renderSlots([
+      {time:'10:00 AM – 11:00 AM', booked:0},
+      {time:'02:00 PM – 03:00 PM', booked:0}
+    ]);
+  }
+}
+
+function renderSlots(slots) {
+  selectedSlot = null;
+  const grid = document.getElementById('slotsGrid');
+  const display = slots.length >= 2 ? slots.slice(0,2) : [
+    {time:'10:00 AM – 11:00 AM', booked:0},
+    {time:'02:00 PM – 03:00 PM', booked:0}
+  ];
+  grid.innerHTML = display.map((s,i) => {
+    const full = s.booked >= 2;
+    return `
+      <div class="slot-card ${full ? 'booked' : 'available'}" id="slot-${i}"
+           onclick="${full ? '' : `pickSlot(${i},'${s.time}')`}"
+           style="margin-bottom:0.5rem;padding:0.8rem;border-radius:8px;cursor:${full?'not-allowed':'pointer'};
+                  border:2px solid ${full?'#ccc':'darkgreen'};background:${full?'#f5f5f5':'#e8f5e8'}">
+        <div style="font-weight:600">${s.time}</div>
+        <div style="font-size:0.8rem;color:${full?'red':'darkgreen'}">${full?'Fully booked':'Available'}</div>
+      </div>`;
+  }).join('');
+}
+
+function pickSlot(i, time) {
+  document.querySelectorAll('.slot-card').forEach(c => c.style.border = '2px solid darkgreen');
+  const el = document.getElementById('slot-' + i);
+  if (el) el.style.border = '3px solid #1a6b1a';
+  selectedSlot = time;
+  clearFieldErr('slot');
+}
+
+['play-pet', 'play-people'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', () => clearFieldErr(id.replace('play-', '')));
+});
+
+document.getElementById('playForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (formSubmittedPlay) {
+    showToast('Already booked! Check your dashboard.', 3000, 'info');
+    return;
+  }
+
+  const user = getUser();
+  if (!user) {
+    showToast('Please login first');
+    setTimeout(() => window.location.href = 'auth.html?page=login', 1200);
+    return;
+  }
+
+  const date   = document.getElementById('play-date').value;
+  const pet    = document.getElementById('play-pet').value;
+  const people = parseInt(document.getElementById('play-people').value) || 1;
+  let valid = true;
+
+  // JS Validation
+  if (!date || !validateFutureDate(date)) { showFieldErr('play-date', 'Select a future date'); valid = false; }
+  if (!pet) { showFieldErr('play-pet', 'Choose a pet type'); valid = false; }
+  if (!selectedSlot) { showFieldErr('slot', 'Please select a time slot'); valid = false; }
+  if (people < 1 || people > 10) { showFieldErr('play-people', 'Enter 1–10'); valid = false; }
+  if (!valid) return;
+
+  const btn   = document.getElementById('play-submit-btn');
+  const token = generateToken();
+  const details = `Pet Type: ${pet}, Slot: ${selectedSlot}, People: ${people}`;
+
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  hideAlert('form-alert-playtime');
+
+  try {
+    const data = await apiFetch('submit_service', {
+      user_id:      user.id,
+      service_type: 'playtime',
+      details:      details,
+      req_date:     date,
+      req_time:     selectedSlot,
+      sub_token:    token
+    });
+
+    if (data.success) {
+      formSubmittedPlay = true;
+      showAlert('form-success-playtime', `✅ Slot booked for ${date} — ${selectedSlot}! Pending confirmation.`, 'success');
+      document.getElementById('playForm').reset();
+      document.getElementById('slots-section').classList.add('hidden');
+      selectedSlot = null;
+      btn.textContent = '✅ Booked';
+      loadMyAppointments();
+    } else {
+      showAlert('form-alert-playtime', data.error || 'Booking failed. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Confirm Booking';
+    }
+  } catch {
+    showAlert('form-alert-playtime', 'Network error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Confirm Booking';
+  }
+});
+
+async function loadMyAppointments() {
+  const user = getUser();
+  if (!user) return;
+  const el = document.getElementById('myAppointments');
+  try {
+    const data = await apiFetch('get_my_services', {user_id: user.id}, 'GET');
+    const list = (data.services || []).filter(s => s.service_type === 'playtime');
+    if (!list.length) { el.innerHTML = '<p style="color:gray">No playtime bookings yet</p>'; return; }
+    el.innerHTML = list.map(a => `
+      <div style="padding:0.6rem;border-bottom:1px solid #eee;font-size:0.9rem">
+        <div><strong>${a.req_date}</strong> &nbsp; ${a.req_time || ''}</div>
+        <div style="font-size:0.8rem;color:#555">${a.details}</div>
+        <div>${statusBadge(a.status)}</div>
+      </div>
+    `).join('');
+  } catch {
+    el.innerHTML = '<p style="color:gray">Could not load bookings</p>';
+  }
+}
+
+setMinDateTomorrow('play-date');
+loadMyAppointments();
+</script>
+
+</body>
+</html>

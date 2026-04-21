@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — PawHome</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .info-section { background:#f5f5f5;border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:0.8rem; }
+    .info-section-title { font-size:0.7rem;font-weight:700;letter-spacing:0.1em;color:#999;text-transform:uppercase;margin-bottom:0.9rem; }
+    .info-cards { display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:0.6rem; }
+    .icard { background:white;border:1px solid #e0e0e0;border-radius:8px;padding:0.55rem 0.85rem;flex:1;min-width:110px; }
+    .icard-label { font-size:0.66rem;font-weight:700;letter-spacing:0.07em;color:#bbb;text-transform:uppercase;margin-bottom:0.2rem; }
+    .icard-value { font-size:0.86rem;font-weight:600;color:#222;word-break:break-all; }
+    .icard.green .icard-value { color:darkgreen; }
+    .icard.blue  .icard-value { color:#303f9f; }
+    .role-badge { display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.8rem;font-weight:600; }
+    .role-badge.customer { background:#e8f5e8;color:darkgreen; }
+    .role-badge.employee { background:#e8eaf6;color:#303f9f; }
+    .dash-greeting h1 { font-size:2rem;font-weight:700;margin-bottom:0.2rem; }
+    .dash-greeting p  { color:gray;margin-bottom:2rem; }
+    .booking-table { width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.9rem; }
+    .booking-table th { background:darkgreen;color:white;padding:0.5rem 0.8rem;text-align:left; }
+    .booking-table td { padding:0.5rem 0.8rem;border-bottom:1px solid #eee; }
+    .booking-table tr:hover { background:#f9f9f9; }
+    .section-panel { background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:1.4rem;margin-bottom:1.2rem;box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+    .section-panel h3 { margin-bottom:0.8rem;color:darkgreen; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <a href="home.html" class="brand">🐾 PawHome</a>
+  <a href="home.html">Home</a>
+  <a href="catalogue.html">Catalogue</a>
+  <a href="shopping.html">Shopping</a>
+  <a href="playtime.html">Playtime</a>
+  <a href="pest.html">Pest Control</a>
+  <a href="feedback.html">Feedback</a>
+  <span class="hidden" id="cookie-greeting" style="color:gold;font-size:0.85rem;padding:0 0.5rem;"></span>
+  <span class="welcome-msg hidden" id="welcome-msg"></span>
+  <a href="dashboard.html" class="active hidden" id="nav-dashboard">Dashboard</a>
+  <a href="#" class="btn-logout hidden" id="btn-logout" onclick="logout()">Logout</a>
+</nav>
+
+<div class="section-wrap">
+
+  <!-- Greeting -->
+  <div class="dash-greeting">
+    <h1 id="greet-text">Hello! 👋</h1>
+    <p>Here's your account overview, session info, and recent bookings.</p>
+  </div>
+
+  <!-- SESSION INFO -->
+  <div class="info-section">
+    <div class="info-section-title">🔐 Session Info &nbsp;·&nbsp; <span style="font-style:italic;font-weight:400;">from sessions.php</span></div>
+    <div class="info-cards">
+      <div class="icard">
+        <div class="icard-label">User ID</div>
+        <div class="icard-value" id="s-userid">Loading...</div>
+      </div>
+      <div class="icard">
+        <div class="icard-label">Name</div>
+        <div class="icard-value" id="s-name">—</div>
+      </div>
+      <div class="icard">
+        <div class="icard-label">Email</div>
+        <div class="icard-value" id="s-email">—</div>
+      </div>
+      <div class="icard">
+        <div class="icard-label">Session ID</div>
+        <div class="icard-value" id="s-sessionid" style="font-size:0.7rem;">—</div>
+      </div>
+    </div>
+    <div class="info-cards">
+      <div class="icard">
+        <div class="icard-label">Role</div>
+        <div class="icard-value" id="s-role">—</div>
+      </div>
+      <div class="icard">
+        <div class="icard-label">Login Time</div>
+        <div class="icard-value" id="s-logintime">—</div>
+      </div>
+      <div class="icard">
+        <div class="icard-label">City</div>
+        <div class="icard-value" id="s-city">—</div>
+      </div>
+      <div class="icard">
+        <div class="icard-label">Session Status</div>
+        <div class="icard-value" id="s-status">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COOKIE INFO -->
+  <div class="info-section">
+    <div class="info-section-title">🍪 Cookie Info &nbsp;·&nbsp; <span style="font-style:italic;font-weight:400;">from cookies.php</span></div>
+    <div class="info-cards">
+      <div class="icard green">
+        <div class="icard-label">paw_user</div>
+        <div class="icard-value" id="c-user">Loading...</div>
+      </div>
+      <div class="icard green">
+        <div class="icard-label">paw_last_login</div>
+        <div class="icard-value" id="c-lastlogin">—</div>
+      </div>
+      <div class="icard green">
+        <div class="icard-label">paw_role</div>
+        <div class="icard-value" id="c-role">—</div>
+      </div>
+      <div class="icard blue">
+        <div class="icard-label">paw_token (httpOnly)</div>
+        <div class="icard-value" id="c-token">—</div>
+      </div>
+    </div>
+    <p style="font-size:0.7rem;color:#bbb;margin-top:0.3rem;">
+      💡 F12 → Application → Cookies → localhost &nbsp;to see all 4 cookies
+    </p>
+  </div>
+
+  <!-- MY SERVICE BOOKINGS -->
+  <div class="section-panel">
+    <h3>📋 My Service Bookings</h3>
+    <div id="services-panel"><p style="color:gray">Loading...</p></div>
+  </div>
+
+  <!-- MY APPOINTMENTS -->
+  <div class="section-panel">
+    <h3>📅 My Appointments</h3>
+    <div id="appointments-panel"><p style="color:gray">Loading...</p></div>
+  </div>
+
+  <!-- Services Grid -->
+  <h2 class="section-title" style="margin-top:1.5rem;">Our Services</h2>
+  <p class="section-sub">Pick what you are looking for today</p>
+
+  <div class="services-grid">
+  <a href="services.html?page=shopping" class="service-card">
+      <img src="https://images.unsplash.com/photo-1601758003122-53c40e686a19?w=700&auto=format&fit=crop" alt="Shopping"/>
+      <div class="service-card-body"><h3>Pet Shopping</h3><p>Adopt a pet that matches your lifestyle</p><span class="go-btn">Browse Pets</span></div>
+    </a>
+
+    <a href="services.html?page=playtime" class="service-card">
+      <img src="https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=700&auto=format&fit=crop" alt="Playtime"/>
+      <div class="service-card-body"><h3>Pet Playtime</h3><p>Book a slot at our pet park</p><span class="go-btn">Book Slot</span></div>
+    </a>
+    <a href="catalogue.html" class="service-card">
+      <img src="https://images.unsplash.com/photo-1548767797-d8c844163c4a?w=700&auto=format&fit=crop" alt="Catalogue"/>
+      <div class="service-card-body"><h3>Pet Catalogue</h3><p>Explore all animals for adoption</p><span class="go-btn">View Catalogue</span></div>
+    </a>
+    <a href="feedback.html" class="service-card">
+      <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=700&auto=format&fit=crop" alt="Feedback"/>
+      <div class="service-card-body"><h3>Give Feedback</h3><p>Tell us your experience</p><span class="go-btn">Write Review</span></div>
+    </a>
+    <a href="employee.html" class="service-card">
+      <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=700&auto=format&fit=crop" alt="Employee"/>
+      <div class="service-card-body"><h3>Employee Portal</h3><p>Staff login and management</p><span class="go-btn">Employee Login</span></div>
+    </a>
+  </div>
+
+</div>
+
+<footer>
+  <p>Made by PawsHome — Every paw deserves a home 2025</p>
+</footer>
+
+<script src="app.js"></script>
+<script>
+initNavbar();
+
+const user = getUser();
+if (user) {
+  document.getElementById('greet-text').textContent = 'Hello, ' + user.firstName + '! 👋';
+}
+
+// ── Load session data ──────────────────────────────────────────────────────────
+async function loadSessionPanel() {
+  try {
+    const res  = await fetch('sessions.php?action=check', { credentials:'include' });
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById('s-userid').textContent    = data.user_id;
+      document.getElementById('s-name').textContent      = data.user_name;
+      document.getElementById('s-email').textContent     = data.user_email;
+      document.getElementById('s-sessionid').textContent = data.session_id;
+      document.getElementById('s-logintime').textContent = data.login_time || '—';
+      document.getElementById('s-city').textContent      = data.city || '—';
+      document.getElementById('s-status').innerHTML      = '<span style="color:darkgreen;">🟢 Active</span>';
+
+      const role = data.role || 'customer';
+      document.getElementById('s-role').innerHTML =
+        `<span class="role-badge ${role}">${role === 'customer' ? '🏠 Customer' : '💼 Employee'}</span>`;
+    } else {
+      document.getElementById('s-userid').innerHTML =
+        '<span style="color:red;">No session — <a href="login.html">Login</a></span>';
+      document.getElementById('s-status').innerHTML = '<span style="color:red;">🔴 Not logged in</span>';
+    }
+  } catch {
+    document.getElementById('s-userid').textContent = 'Error loading session';
+  }
+}
+
+// ── Load cookie data ───────────────────────────────────────────────────────────
+async function loadCookiePanel() {
+  try {
+    const res  = await fetch('cookies.php?action=read', { credentials:'include' });
+    const data = await res.json();
+
+    document.getElementById('c-user').textContent      = data.paw_user       || '—';
+    document.getElementById('c-lastlogin').textContent = data.paw_last_login || '—';
+    document.getElementById('c-role').textContent      = data.paw_role       || '—';
+    document.getElementById('c-token').innerHTML       = data.paw_token_active
+      ? '<span style="color:darkgreen;">✓ Active (7 days)</span>'
+      : '<span style="color:red;">✗ Not set</span>';
+
+    // Show cookie greeting in navbar if cookie exists
+    const cookieGreeting = document.getElementById('cookie-greeting');
+    if (cookieGreeting && data.paw_user) {
+      cookieGreeting.textContent = `🍪 Welcome back, ${data.paw_user}!`;
+      cookieGreeting.classList.remove('hidden');
+    }
+  } catch {
+    document.getElementById('c-user').textContent = 'Error loading';
+  }
+}
+
+// ── Load my service bookings ───────────────────────────────────────────────────
+async function loadServiceBookings() {
+  if (!user) {
+Please <a href="auth.html?page=login">login</a> to see your bookings.</p>';
+    return;
+  }
+  try {
+    const data = await apiFetch('get_my_services', {user_id: user.id}, 'GET');
+    const el   = document.getElementById('services-panel');
+
+    if (!data.services || !data.services.length) {
+      el.innerHTML = '<p style="color:gray">No service bookings yet. Try <a href="shopping.html">Shopping</a>, <a href="playtime.html">Playtime</a>, or <a href="pest.html">Pest Control</a>.</p>';
+      return;
+    }
+
+    el.innerHTML = `
+      <table class="booking-table">
+        <thead><tr>
+          <th>Service</th><th>Details</th><th>Date</th><th>Time</th><th>Status</th>
+        </tr></thead>
+        <tbody>${data.services.map(s => `
+          <tr>
+            <td>${serviceIcon(s.service_type)} ${s.service_type.charAt(0).toUpperCase() + s.service_type.slice(1)}</td>
+            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.details}</td>
+            <td>${s.req_date}</td>
+            <td>${s.req_time || '—'}</td>
+            <td>${statusBadge(s.status)}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch {
+    document.getElementById('services-panel').innerHTML = '<p style="color:red">Error loading bookings.</p>';
+  }
+}
+
+// ── Load my appointments ───────────────────────────────────────────────────────
+async function loadAppointments() {
+  if (!user) {
+    document.getElementById('appointments-panel').innerHTML = '<p style="color:gray">Please <a href="login.html">login</a> to see appointments.</p>';
+    return;
+  }
+  try {
+    const data = await apiFetch('get_my_appointments', {user_id: user.id}, 'GET');
+    const el   = document.getElementById('appointments-panel');
+
+    if (!data.appointments || !data.appointments.length) {
+      el.innerHTML = '<p style="color:gray">No appointments yet. <a href="catalogue.html">Browse animals</a> and book one!</p>';
+      return;
+    }
+
+    el.innerHTML = `
+      <table class="booking-table">
+        <thead><tr>
+          <th>Animal</th><th>Date</th><th>Purpose</th><th>Status</th><th>Note</th>
+        </tr></thead>
+        <tbody>${data.appointments.map(a => `
+          <tr>
+            <td>🐾 ${a.animal_name || '—'}</td>
+            <td>${a.appt_date}</td>
+            <td>${a.purpose || '—'}</td>
+            <td>${statusBadge(a.status)}</td>
+            <td style="font-size:0.8rem;color:#ef4444">${a.status === 'rejected' ? (a.reject_msg || 'No slots available. Please try again after 5 minutes.') : '—'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch {
+    document.getElementById('appointments-panel').innerHTML = '<p style="color:red">Error loading appointments.</p>';
+  }
+}
+
+function serviceIcon(type) {
+  return {shopping:'🛒', playtime:'🎾', pest:'🐛'}[type] || '📋';
+}
+
+async function logout() {
+  await fetch('sessions.php?action=destroy', { credentials:'include' });
+  await fetch('cookies.php?action=clear',    { credentials:'include' });
+  localStorage.removeItem('pawsUser');
+  checkLoginStatus();
+  showToast('Logged out');
+  setTimeout(() => location.href = 'login.html', 1000);
+}
+
+// Run on load
+loadSessionPanel();
+loadCookiePanel();
+loadServiceBookings();
+loadAppointments();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PawHome - Adopt a Pet</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAVBAR - Consistent -->
+<nav class="navbar" id="navbar">
+  <a href="home.html" class="brand">🐾 PawHome</a>
+  <a href="home.html" class="active">Home</a>
+  <a href="catalogue.html">Catalogue</a>
+  <a href="services.html?page=shopping">Shopping</a>
+  <a href="services.html?page=playtime">Playtime</a>
+  <a href="dashboard.html" class="hidden" id="nav-dashboard">Dashboard</a>
+  <a href="auth.html?page=register" id="navRegister">Register</a>
+  <a href="auth.html?page=login" id="navLogin">Login</a>
+  <span class="welcome-msg hidden" id="welcome-msg"></span>
+  <a href="dashboard.html" class="hidden" id="nav-dashboard">Dashboard</a>
+  <a href="#" class="btn-logout hidden" id="btn-logout" onclick="logout()">Logout</a>
+</nav>
+
+<!-- WELCOME BANNER -->
+<div class="welcome-banner" id="welcomeBanner">
+  Welcome back, <span id="welcomeName"></span> Ready to find your perfect companion?
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-image"></div>
+  <div class="hero-content">
+    <div class="hero-text fade-up">
+      <h1>Give a Pet a Forever Home Change Your Life</h1>
+      <p>
+        Every animal deserves a loving home. When you adopt, you are not just saving a life you are gaining a loyal friend and creating a bond that lasts a lifetime.
+      </p>
+      <div class="hero-btns">
+        <a href="catalogue.html" class="btn btn-primary">Browse Pets</a>
+    <a href="auth.html?page=register" class="btn btn-outline">Join Us Free</a>
+      </div>
+    </div>
+    <div class="hero-image-card fade-up fade-up-delay-2">
+<img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&q=80" alt="Happy dog with family">
+    </div>
+  </div>
+</section>
+
+<!-- WHY ADOPT -->
+<div class="section">
+  <div class="adopt-box fade-up">
+    <h2>Adopting a Pet is a Good Deed</h2>
+    <p>
+      When you choose to adopt, you are giving a second chance to an animal that truly needs love and care.
+    </p>
+  </div>
+
+  <div class="section-header">
+    <div class="section-tag">Why Adopt</div>
+    <h2>Every Reason to Open Your Heart</h2>
+    <p>Millions of animals need homes.</p>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card fade-up">
+      <h3>Save a Life</h3>
+      <p>Adopting gives animals a second chance.</p>
+    </div>
+
+    <div class="card fade-up fade-up-delay-1">
+      <h3>Affordable Love</h3>
+      <p>Adoption costs are lower.</p>
+    </div>
+
+    <div class="card fade-up fade-up-delay-2">
+      <h3>Better Mental Health</h3>
+      <p>Pets reduce stress and increase happiness.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<div>
+<div class="section">
+  <div class="section-header">
+    <div class="section-tag">Our Services</div>
+    <h2>Everything for Your Animal Family</h2>
+  </div>
+
+  <div class="services-grid">
+    <a href="catalogue.html" class="service-card">
+      <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&q=80" alt="Pet Shopping">
+      <div class="service-card-body">
+        <h3>Pet Adoption Shop</h3>
+      </div>
+    </a>
+
+    <a href="playtime.html" class="service-card">
+      <img src="https://images.unsplash.com/photo-1522276498395-f4f68f7f8454?w=400&q=80" alt="Playtime">
+      <div class="service-card-body">
+        <h3>Pet Play Time</h3>
+      </div>
+    </a>
+  </div>
+</div>
+</div>
+
+<!-- FEATURED PETS -->
+<div class="section">
+  <div class="section-header">
+    <h2>Waiting for Their Forever Home</h2>
+  </div>
+
+  <div class="pets-grid" id="featuredPets">
+      Loading featured pets...
+  </div>
+</div>
+
+<!-- FAQ SECTION -->
+<div class="faq-section">
+  <div class="section-header text-center">
+    <h2>Frequently Asked Questions</h2>
+    <p>Everything you need to know about adopting and caring for your new pet family member</p>
+  </div>
+  <div class="faq-container">
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How does the pet adoption process work?</span>
+        <span class="faq-icon">➕</span>
+      </div>
+      <div class="faq-answer">
+        <p>1. Browse our <a href="catalogue.html">catalogue</a> 2. Select your perfect match 3. Complete simple registration 4. Meet & adopt! Our team handles all paperwork. Most adoptions complete within 24-48 hours.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What documents do I need to adopt?</span>
+        <span class="faq-icon">➕</span>
+      </div>
+      <div class="faq-answer">
+        <p>Government ID, address proof, and emergency contact. No extensive background checks - we prioritize loving homes! Families with children welcome.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Are there any adoption costs or fees?</span>
+        <span class="faq-icon">➕</span>
+      </div>
+      <div class="faq-answer">
+        <p>Very affordable! Basic adoption fee covers vaccinations & microchip (₹500-2000). Compare to buying (₹10k+). All pets spayed/neutered & vet-checked.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What health guarantees do you provide?</span>
+        <span class="faq-icon">➕</span>
+      </div>
+      <div class="faq-answer">
+        <p>30-day health guarantee. All pets receive full vet exam, deworming, and vaccinations before adoption. Free first vet visit voucher included!</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Tell me about your Playtime & Pest services</span>
+        <span class="faq-icon">➕</span>
+      </div>
+      <div class="faq-answer">
+        <p><a href="playtime.html">Playtime</a> offers supervised socialization & exercise. <a href="pest.html">Pest Control</a> provides safe, pet-friendly treatments. Bundled discounts for adopters!</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Can I adopt multiple pets at once?</span>
+        <span class="faq-icon">➕</span>
+      </div>
+      <div class="faq-answer">
+        <p>Absolutely! Sibling pairs & family-friendly litters available. Multi-pet discount + free <a href="shopping.html">shopping</a> starter kit. Building your pack made easy.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">PawHome</div>
+      <p>Connecting families with pets.</p>
+    </div>
+
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li>Email hello@pawhome.in</li>
+        <li>Phone 8104122195</li>
+        <li>Mumbai Maharashtra</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    2025 PawHome
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+  initNavbar();
+  // Load featured pets on home
+  async function loadFeaturedPets() {
+    try {
+      const data = await apiFetch('get_pets', {type: 'all'}, 'GET');
+      if (data.success && data.pets.length) {
+        const grid = document.getElementById('featuredPets');
+        grid.innerHTML = data.pets.slice(0,4).map(p => `
+          <div class="pet-card">
+            <img src="${p.img_url}" alt="${p.name}" loading="lazy">
+            <div class="pet-card-body">
+              <h3>${p.name}</h3>
+              <p>${p.type}</p>
+              <span class="badge">${p.offer || 'Adopt Now'}</span>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        document.getElementById('featuredPets').innerHTML = '<p>No featured pets available</p>';
+      }
+    } catch (e) {
+      document.getElementById('featuredPets').innerHTML = '<p>Load error - check DB</p>';
+    }
+  }
+  loadFeaturedPets();
+  initFAQs();
+</script>
+</body>
+
+</html>

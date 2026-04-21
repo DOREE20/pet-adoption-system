@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Employee Login — PawHome</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+  .step-indicator { display:flex;gap:0;margin-bottom:2rem; }
+  .step { flex:1;padding:0.7rem;text-align:center;background:#f0f0f0;font-weight:600;font-size:0.85rem;color:#999;transition:0.3s; }
+  .step:first-child { border-radius:8px 0 0 8px; }
+  .step:last-child  { border-radius:0 8px 8px 0; }
+  .step.active  { background:darkgreen;color:white; }
+  .step.done    { background:#a5d6a7;color:#1b5e20; }
+  .role-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin:0.8rem 0; }
+  .role-option { padding:0.8rem;border:2px solid #ddd;border-radius:8px;text-align:center;cursor:pointer;transition:0.2s;font-weight:600;font-size:0.9rem; }
+  .role-option:hover  { border-color:darkgreen;background:#f0fff0; }
+  .role-option.chosen { border-color:darkgreen;background:darkgreen;color:white; }
+  .lock-icon { font-size:3rem;margin-bottom:0.5rem; }
+</style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <a href="home.html" class="brand">🐾 PawHome</a>
+  <a href="home.html">Home</a>
+  <a href="login.html">Customer Login</a>
+  <a href="register.html">Register</a>
+</nav>
+
+<div class="form-page" style="display:flex;align-items:center;min-height:calc(100vh - 60px);">
+<div class="form-card" style="width:100%;max-width:500px;">
+
+  <div style="text-align:center;margin-bottom:1.5rem">
+    <div class="lock-icon">🔒</div>
+    <h2>Employee Login</h2>
+    <p style="color:gray;font-size:0.9rem">2-step verification required for all staff</p>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="step-indicator">
+    <div class="step active" id="step-ind-1">Step 1: Master Password</div>
+    <div class="step"        id="step-ind-2">Step 2: Role & Password</div>
+  </div>
+
+  <div id="form-alert"   class="alert alert-error  hidden"></div>
+  <div id="form-success" class="alert alert-success hidden"></div>
+
+  <!-- ── STEP 1 ── -->
+  <div id="step1-panel">
+    <p style="margin-bottom:1rem;color:#555;font-size:0.95rem">
+      Enter the master password to unlock role selection.
+    </p>
+    <div class="form-group">
+      <label>Master Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="master-pw" placeholder="Enter master password">
+        <button type="button" class="pw-toggle" onclick="togglePw('master-pw')">Show</button>
+      </div>
+      <div class="field-error" id="err-master-pw">Master password is required</div>
+    </div>
+    <button class="btn btn-primary btn-full mt-2" id="step1-btn" onclick="verifyMaster()">
+      Verify Master Password →
+    </button>
+  </div>
+
+  <!-- ── STEP 2 ── -->
+  <div id="step2-panel" class="hidden">
+    <p style="margin-bottom:0.5rem;color:#555;font-size:0.95rem">
+      ✅ Master password accepted. Choose your role and enter your role password.
+    </p>
+
+    <div class="form-group" style="margin-top:1rem">
+      <label>Select Your Role</label>
+      <div class="role-grid">
+        <div class="role-option" onclick="selectRole('vet')"        id="role-vet">🩺 Vet</div>
+        <div class="role-option" onclick="selectRole('feeder')"     id="role-feeder">🍖 Feeder</div>
+        <div class="role-option" onclick="selectRole('booker')"     id="role-booker">📅 Booker</div>
+        <div class="role-option" onclick="selectRole('maintainer')" id="role-maintainer">🔧 Maintainer</div>
+        <div class="role-option" onclick="selectRole('trainer')"    id="role-trainer">🏋️ Trainer</div>
+        <div class="role-option" onclick="selectRole('admin')"      id="role-admin">👑 Admin</div>
+      </div>
+      <div class="field-error" id="err-role">Please select a role</div>
+    </div>
+
+    <div class="form-group">
+      <label>Role Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="role-pw" placeholder="Enter your role password">
+        <button type="button" class="pw-toggle" onclick="togglePw('role-pw')">Show</button>
+      </div>
+      <div class="field-error" id="err-role-pw">Role password is required</div>
+    </div>
+
+    <button class="btn btn-primary btn-full mt-2" id="step2-btn" onclick="doEmployeeLogin()">
+      Login as Employee →
+    </button>
+
+    <div style="text-align:center;margin-top:0.8rem">
+      <a href="#" onclick="resetToStep1()" style="font-size:0.85rem;color:gray">← Start over</a>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+let selectedRole = '';
+
+// ── STEP 1: Verify master password ────────────────────────────────────────────
+async function verifyMaster() {
+  const pw  = document.getElementById('master-pw').value;
+  const btn = document.getElementById('step1-btn');
+  hideAlert('form-alert');
+
+  if (!pw) {
+    showFieldErr('master-pw', 'Master password is required');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+
+  try {
+    const data = await opsFetch('verify_master', { master_password: pw });
+
+    if (data.success) {
+      // Move to step 2
+      document.getElementById('step1-panel').classList.add('hidden');
+      document.getElementById('step2-panel').classList.remove('hidden');
+      document.getElementById('step-ind-1').classList.remove('active');
+      document.getElementById('step-ind-1').classList.add('done');
+      document.getElementById('step-ind-2').classList.add('active');
+    } else {
+      showAlert('form-alert', data.error || 'Wrong master password. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Verify Master Password →';
+    }
+  } catch {
+    showAlert('form-alert', 'Server error. Is XAMPP running?');
+    btn.disabled = false;
+    btn.textContent = 'Verify Master Password →';
+  }
+}
+
+// ── Select role ───────────────────────────────────────────────────────────────
+function selectRole(role) {
+  selectedRole = role;
+  document.querySelectorAll('.role-option').forEach(el => el.classList.remove('chosen'));
+  document.getElementById('role-' + role).classList.add('chosen');
+  clearFieldErr('role');
+}
+
+// ── STEP 2: Employee login ────────────────────────────────────────────────────
+async function doEmployeeLogin() {
+  const rolePw = document.getElementById('role-pw').value;
+  const btn    = document.getElementById('step2-btn');
+  hideAlert('form-alert');
+
+  let valid = true;
+  if (!selectedRole) { showFieldErr('role', 'Please select a role'); valid = false; }
+  if (!rolePw)       { showFieldErr('role-pw', 'Role password is required'); valid = false; }
+  if (!valid) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Logging in...';
+
+  try {
+    const data = await opsFetch('employee_login', {
+      role:          selectedRole,
+      role_password: rolePw
+    });
+
+    if (data.success) {
+      showAlert('form-success', `✅ Logged in as ${selectedRole.charAt(0).toUpperCase()+selectedRole.slice(1)}! Redirecting...`, 'success');
+      btn.textContent = '✅ Success!';
+      setTimeout(() => window.location.href = 'employee_panel.html', 1200);
+    } else {
+      showAlert('form-alert', data.error || 'Wrong role password. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Login as Employee →';
+    }
+  } catch {
+    showAlert('form-alert', 'Server error. Is XAMPP running?');
+    btn.disabled = false;
+    btn.textContent = 'Login as Employee →';
+  }
+}
+
+// ── Reset to step 1 ───────────────────────────────────────────────────────────
+function resetToStep1() {
+  document.getElementById('step2-panel').classList.add('hidden');
+  document.getElementById('step1-panel').classList.remove('hidden');
+  document.getElementById('step-ind-1').classList.add('active');
+  document.getElementById('step-ind-1').classList.remove('done');
+  document.getElementById('step-ind-2').classList.remove('active');
+  document.getElementById('master-pw').value = '';
+  document.getElementById('role-pw').value   = '';
+  selectedRole = '';
+  document.querySelectorAll('.role-option').forEach(el => el.classList.remove('chosen'));
+  hideAlert('form-alert');
+  hideAlert('form-success');
+  const btn1 = document.getElementById('step1-btn');
+  btn1.disabled = false;
+  btn1.textContent = 'Verify Master Password →';
+}
+
+// Enter key support
+document.getElementById('master-pw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') verifyMaster();
+});
+document.getElementById('role-pw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doEmployeeLogin();
+});
+</script>
+
+</body>
+</html>

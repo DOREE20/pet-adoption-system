@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Login & Register — PawHome</title>
+<link rel="stylesheet" href="style.css"/>
+<!-- LOGIN STYLES (preserved from login.html) -->
+<style>
+  /* Role toggle */
+  .role-toggle {
+    display: flex;
+    border: 2px solid darkgreen;
+    border-radius: 50px;
+    overflow: hidden;
+    margin: 0 auto 0.6rem;
+    width: fit-content;
+  }
+  .role-btn {
+    padding: 0.5rem 1.8rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: white;
+    color: darkgreen;
+    transition: 0.2s;
+  }
+  .role-btn.active { background: darkgreen; color: white; }
+
+  /* Info panels */
+  .info-section {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    margin-top: 1.4rem;
+  }
+  .info-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+  }
+  .info-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+  .icard {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    flex: 1;
+    min-width: 110px;
+  }
+  .icard-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    color: #bbb;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+  .icard-value {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #222;
+    word-break: break-all;
+  }
+  .icard.green .icard-value { color: darkgreen; }
+  .icard.blue  .icard-value { color: #303f9f; }
+  .role-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .role-badge.customer { background: #e8f5e8; color: darkgreen; }
+  .role-badge.employee { background: #e8eaf6; color: #303f9f; }
+  /* Register styles preserved */
+  .strength-bar { margin-top: 0.3rem; }
+  .strength-track { height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
+  .strength-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .strength-weak .strength-fill { width: 25%; background: red; }
+  .strength-medium .strength-fill { width: 50%; background: orange; }
+  .strength-strong .strength-fill { width: 100%; background: green; }
+</style>
+</head>
+<body data-page="login">
+
+<!-- NAVBAR (updated links, remove pest) -->
+<nav class="navbar" id="navbar">
+  <a href="home.html" class="brand">🐾 PawHome</a>
+  <a href="home.html">Home</a>
+  <a href="catalogue.html">Catalogue</a>
+  <a href="services.html?page=shopping">Shopping</a>
+  <a href="services.html?page=playtime">Playtime</a>
+  <a href="dashboard.html" class="hidden" id="nav-dashboard">Dashboard</a>
+  <a href="feedback.html" class="hidden" id="nav-feedback">Feedback</a>
+  <span class="welcome-msg hidden" id="welcome-msg"></span>
+  <a href="#" class="btn-logout hidden" id="btn-logout" onclick="logout()">Logout</a>
+</nav>
+
+<!-- LOGIN PAGE (original login.html content, data-page="login") -->
+<div data-page="login" id="login-page" style="display:flex;align-items:center;min-height:calc(100vh - 60px);">
+<div class="form-card" style="width:100%;max-width:520px;">
+
+  <div style="text-align:center;margin-bottom:1.2rem;">
+    <div style="font-size:3rem;margin-bottom:0.3rem;">🐾</div>
+    <h2 style="margin-bottom:0.3rem;">Welcome Back</h2>
+    <p style="color:gray;font-size:0.9rem;">Login to continue your PawHome journey</p>
+  </div>
+
+  <!-- Role toggle (preserved) -->
+  <div style="text-align:center;">
+    <div class="role-toggle">
+      <button class="role-btn active" id="btn-customer" onclick="setRole('customer')">🏠 Customer</button>
+      <button class="role-btn"        id="btn-employee" onclick="setRole('employee')">💼 Employee</button>
+    </div>
+  </div>
+  <p id="role-hint" style="text-align:center;color:gray;font-size:0.85rem;margin-bottom:1.1rem;">
+    Logging in as a <strong>Customer</strong>
+  </p>
+
+  <div id="form-alert-login"   class="alert alert-error  hidden"></div>
+  <div id="form-success-login" class="alert alert-success hidden"></div>
+
+  <form id="loginForm" novalidate>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="email"/>
+      <div class="field-error" id="err-email">Enter a valid email</div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="password"/>
+        <button type="button" class="pw-toggle" onclick="togglePw('password')">Show</button>
+      </div>
+      <div class="field-error" id="err-password">Password is required</div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-full mt-2" id="login-btn">
+      Login as Customer
+    </button>
+    <div style="text-align:center;margin-top:1rem;font-size:0.9rem;">
+      No account? <a href="auth.html?page=register">Register here</a>
+    </div>
+  </form>
+
+  <!-- Session/Cookie info (preserved) -->
+  <div id="session-info-box-login" class="hidden">
+    <!-- Original session info box content from login.html -->
+    <div class="info-section">
+      <div class="info-section-title">🔐 Session Info &nbsp;·&nbsp; <span style="font-style:italic;font-weight:400;">from auth_handler.php</span></div>
+      <div class="info-cards">
+        <div class="icard">
+          <div class="icard-label">User ID</div>
+          <div class="icard-value" id="s-userid-login">—</div>
+        </div>
+        <div class="icard">
+          <div class="icard-label">Name</div>
+          <div class="icard-value" id="s-name-login">—</div>
+        </div>
+        <div class="icard">
+          <div class="icard-label">Email</div>
+          <div class="icard-value" id="s-email-login">—</div>
+        </div>
+        <div class="icard">
+          <div class="icard-label">Session ID</div>
+          <div class="icard-value" id="s-sessionid-login" style="font-size:0.7rem;">—</div>
+        </div>
+      </div>
+      <div class="info-cards">
+        <div class="icard">
+          <div class="icard-label">Role</div>
+          <div class="icard-value" id="s-role-login">—</div>
+        </div>
+        <div class="icard">
+          <div class="icard-label">Login Time</div>
+          <div class="icard-value" id="s-logintime-login">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section" style="margin-top:0.8rem;">
+      <div class="info-section-title">🍪 Cookie Info &nbsp;·&nbsp; <span style="font-style:italic;font-weight:400;">from auth_handler.php</span></div>
+      <div class="info-cards">
+        <div class="icard green">
+          <div class="icard-label">paw_user</div>
+          <div class="icard-value" id="c-user-login">—</div>
+        </div>
+        <div class="icard green">
+          <div class="icard-label">paw_last_login</div>
+          <div class="icard-value" id="c-lastlogin-login">—</div>
+        </div>
+        <div class="icard green">
+          <div class="icard-label">paw_role</div>
+          <div class="icard-value" id="c-role-login">—</div>
+        </div>
+        <div class="icard blue">
+          <div class="icard-label">paw_token (httpOnly)</div>
+          <div class="icard-value" id="c-token-login">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;">
+      <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+      <a href="services.html?page=shopping"  class="btn btn-outline">Shopping</a>
+      <a href="services.html?page=playtime"  class="btn btn-outline">Playtime</a>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- REGISTER PAGE (original register.html content, data-page="register", hidden by default) -->
+<div data-page="register" id="register-page" class="form-page" style="display:none;">
+
+  <div class="form-card">
+    <h2>Create Your Account</h2>
+    <p class="subtitle">Join the PawsHome family adopt care and give love</p>
+
+    <div id="form-alert-register" class="alert alert-error hidden"></div>
+
+    <form id="registerForm" novalidate>
+
+      <div class="form-section-label">Personal Information</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName"/>
+          <div class="field-error" id="err-firstName">First name is required</div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName"/>
+          <div class="field-error" id="err-lastName">Last name is required</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email-register"/>
+        <div class="field-error" id="err-email-register">Enter valid email</div>
+      </div>
+
+      <div class="form-section-label">Address Details</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="flatNo">Flat House No</label>
+          <input type="text" id="flatNo"/>
+          <div class="field-error" id="err-flatNo">Required</div>
+        </div>
+
+        <div class="form-group">
+          <label for="building">Building Name</label>
+          <input type="text" id="building"/>
+          <div class="field-error" id="err-building">Required</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="street">Street</label>
+          <input type="text" id="street"/>
+        </div>
+
+        <div class="form-group">
+          <label for="area">Area</label>
+          <input type="text" id="area"/>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="city">City</label>
+          <input type="text" id="city"/>
+          <div class="field-error" id="err-city">Required</div>
+        </div>
+
+        <div class="form-group">
+          <label for="pincode">Pincode</label>
+          <input type="text" id="pincode" maxlength="6"/>
+          <div class="field-error" id="err-pincode">6 digits required</div>
+        </div>
+      </div>
+
+      <div class="form-section-label">Set Password</div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="password-register"/>
+          <button type="button" class="pw-toggle" onclick="togglePw('password-register','eyeIcon1')" id="eyeIcon1">Show</button>
+        </div>
+
+        <div class="strength-bar" id="strengthBar">
+          <div class="strength-track">
+            <div class="strength-fill" id="strengthFill"></div>
+          </div>
+          <div class="strength-label" id="strengthLabel"></div>
+        </div>
+
+        <div class="field-error" id="err-password-register">Min 8 characters</div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="confirmPassword"/>
+          <button type="button" class="pw-toggle" onclick="togglePw('confirmPassword','eyeIcon2')" id="eyeIcon2">Show</button>
+        </div>
+        <div class="field-error" id="err-confirmPassword">Passwords do not match</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full mt-2">
+        Create Account
+      </button>
+
+      <div class="login-link">
+        Already have an account <a href="auth.html?page=login">Login</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+// ── SHARED INIT (navbar + routing) ──
+initNavbar();
+initRouting();  // Toggles based on ?page=login/register
+
+// ── LOGIN JS (original from login.html) ──
+let selectedRole  = 'customer';
+let formSubmitted = false;
+
+function setRole(role) {
+  selectedRole = role;
+  document.getElementById('btn-customer').classList.toggle('active', role === 'customer');
+  document.getElementById('btn-employee').classList.toggle('active', role === 'employee');
+  document.getElementById('role-hint').innerHTML =
+    role === 'customer'
+      ? 'Logging in as a <strong>Customer</strong>'
+      : 'Logging in as an <strong>Employee</strong> — <a href="employee.html" style="color:darkgreen">Use 2-Step Employee Login →</a>';
+  document.getElementById('login-btn').textContent =
+    role === 'customer' ? 'Login as Customer' : 'Go to Employee Login';
+}
+
+// ... rest of original login JS (form submit to api.php/sessions.php/cookies.php → auth_handler.php) ...
+['email','password'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    document.getElementById(id).classList.remove('error');
+    document.getElementById('err-'+id).classList.remove('show');
+  });
+});
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (selectedRole === 'employee') {
+    window.location.href = 'employee.html';
+    return;
+  }
+
+  if (formSubmitted) return;
+
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const alertEl  = document.getElementById('form-alert-login');
+  alertEl.classList.add('hidden');
+  document.getElementById('form-success-login').classList.add('hidden');
+
+  let valid = true;
+  if (!email || !validateEmail(email)) {
+    document.getElementById('err-email').classList.add('show'); valid = false;
+  }
+  if (!password) { document.getElementById('err-password').classList.add('show'); valid = false; }
+  if (!valid) return;
+
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  // STEP 1: api.php login
+  const fd = new FormData();
+  fd.append('action',   'login');
+  fd.append('email',    email);
+  fd.append('password', password);
+  fd.append('role',     selectedRole);
+
+  let loginData;
+  try {
+    const res = await fetch('api.php', { method:'POST', body:fd, credentials:'include' });
+    loginData  = await res.json();
+  } catch {
+    alertEl.textContent = 'Network error — is the server running?';
+    alertEl.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Login as Customer';
+    return;
+  }
+
+  if (!loginData.success) {
+    alertEl.textContent = loginData.error || 'Invalid email or password';
+    alertEl.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Login as Customer';
+    return;
+  }
+
+  formSubmitted = true;
+  localStorage.setItem('pawsUser', JSON.stringify(loginData.user));
+  checkLoginStatus();
+
+  // STEP 2: auth_handler.php session set (updated)
+  const sf = new FormData();
+  sf.append('action',    'set');
+  sf.append('user_id',   loginData.user.id);
+  sf.append('firstName', loginData.user.firstName);
+  sf.append('lastName',  loginData.user.lastName);
+  sf.append('email',     loginData.user.email);
+  sf.append('city',      loginData.user.city || '');
+  sf.append('role',      selectedRole);
+
+  let sessionData;
+  try {
+    const res  = await fetch('auth_handler.php?action=set', { method:'POST', body:sf, credentials:'include' });
+    sessionData = await res.json();
+  } catch {
+    sessionData = {};
+  }
+
+  // STEP 3: auth_handler.php cookie set (updated)
+  const cf = new FormData();
+  cf.append('action',    'set');
+  cf.append('firstName', loginData.user.firstName);
+  cf.append('role',      selectedRole);
+
+  let cookieData;
+  try {
+    const res  = await fetch('auth_handler.php?action=set', { method:'POST', body:cf, credentials:'include' });
+    cookieData  = await res.json();
+  } catch {
+    cookieData = {};
+  }
+
+  document.getElementById('form-success-login').textContent = '✅ Login successful!';
+  document.getElementById('form-success-login').classList.remove('hidden');
+
+  // Fill info boxes (login IDs)
+  document.getElementById('s-userid-login').textContent    = loginData.user.id;
+  document.getElementById('s-name-login').textContent      = loginData.user.firstName + ' ' + loginData.user.lastName;
+  document.getElementById('s-email-login').textContent     = loginData.user.email;
+  document.getElementById('s-sessionid-login').textContent = sessionData.session_id || '—';
+  document.getElementById('s-logintime-login').textContent = sessionData.login_time  || '—';
+  document.getElementById('s-role-login').innerHTML =
+    `<span class="role-badge ${selectedRole}">${selectedRole === 'customer' ? '🏠 Customer' : '💼 Employee'}</span>`;
+
+  document.getElementById('c-user-login').textContent      = cookieData.paw_user       || '—';
+  document.getElementById('c-lastlogin-login').textContent = cookieData.paw_last_login || '—';
+  document.getElementById('c-role-login').textContent      = cookieData.paw_role       || '—';
+  document.getElementById('c-token-login').innerHTML =
+    '<span style="color:#303f9f;">🔒 HttpOnly — not readable by JS</span>';
+
+  document.getElementById('session-info-box-login').classList.remove('hidden');
+});
+
+// ── REGISTER JS (original from register.html, suffixed IDs) ──
+document.getElementById('password-register').addEventListener('input', function(){
+  const pw=this.value,bar=document.getElementById('strengthBar'),fill=document.getElementById('strengthFill'),label=document.getElementById('strengthLabel');
+  bar.className='strength-bar';
+  if(!pw){fill.style.width='0';label.textContent='';return;}
+
+  const hasUpper=/[A-Z]/.test(pw),hasLower=/[a-z]/.test(pw),hasNum=/[0-9]/.test(pw),hasSpec=/[^A-Za-z0-9]/.test(pw);
+  let level='weak';
+
+  if(pw.length>=8&&hasSpec)level='strong';
+  else if(pw.length>=8&&(hasUpper&&hasLower&&hasNum))level='medium';
+
+  bar.classList.add('strength-'+level);
+  label.textContent=level.charAt(0).toUpperCase()+level.slice(1)+' password';
+});
+
+['firstName','lastName','email-register','flatNo','building','city','pincode','password-register','confirmPassword'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('input',()=>clearFieldErr(id));
+});
+
+document.getElementById('registerForm').addEventListener('submit',async function(e){
+  e.preventDefault();
+
+  const firstName=document.getElementById('firstName').value.trim();
+  const lastName=document.getElementById('lastName').value.trim();
+  const email=document.getElementById('email-register').value.trim();
+  const flatNo=document.getElementById('flatNo').value.trim();
+  const building=document.getElementById('building').value.trim();
+  const street=document.getElementById('street').value.trim();
+  const area=document.getElementById('area').value.trim();
+  const city=document.getElementById('city').value.trim();
+  const pincode=document.getElementById('pincode').value.trim();
+  const password=document.getElementById('password-register').value;
+  const confirmPassword=document.getElementById('confirmPassword').value;
+
+  ['firstName','lastName','email-register','flatNo','building','city','pincode','password-register','confirmPassword'].forEach(id=>clearFieldErr(id));
+  document.getElementById('form-alert-register').classList.add('hidden');
+
+  const errors=[];
+  if(!firstName)errors.push({id:'firstName',msg:'Required'});
+  if(!lastName)errors.push({id:'lastName',msg:'Required'});
+  if(!email||!validateEmail(email))errors.push({id:'email-register',msg:'Invalid email'});
+  if(!flatNo)errors.push({id:'flatNo',msg:'Required'});
+  if(!building)errors.push({id:'building',msg:'Required'});
+  if(!city)errors.push({id:'city',msg:'Required'});
+  if(!pincode||!/^\d{6}$/.test(pincode))errors.push({id:'pincode',msg:'6 digits'});
+  if(!password||password.length<8)errors.push({id:'password-register',msg:'Min 8 chars'});
+  if(password!==confirmPassword)errors.push({id:'confirmPassword',msg:'Mismatch'});
+
+  if(errors.length>0){
+    errors.forEach(err=>showFieldErr(err.id,err.msg));
+    document.getElementById(errors[0].id).focus();
+    return;
+  }
+
+  const formData=new FormData();
+  formData.append('action','register');
+  formData.append('firstName',firstName);
+  formData.append('lastName',lastName);
+  formData.append('email',email);
+  formData.append('flatNo',flatNo);
+  formData.append('building',building);
+  formData.append('street',street);
+  formData.append('area',area);
+  formData.append('city',city);
+  formData.append('pincode',pincode);
+  formData.append('password',password);
+
+  try{
+    const res=await fetch('api.php',{method:'POST',body:formData});
+    const data=await res.json();
+
+    if(data.success){
+      showToast('Registered');
+      setTimeout(()=>window.location.href='auth.html?page=login',1500);
+    }else{
+      const alert=document.getElementById('form-alert-register');
+      alert.textContent=data.message||'Failed';
+      alert.classList.remove('hidden');
+      if(data.field)showFieldErr(data.field,data.message);
+    }
+  }catch{
+    const alert=document.getElementById('form-alert-register');
+    alert.textContent='Network error';
+    alert.classList.remove('hidden');
+  }
+
+});
+</script>
+
+</body>
+</html>
